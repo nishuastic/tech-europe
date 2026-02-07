@@ -13,8 +13,9 @@
 
 ## 🔄 Phase 2: Polish
 
-- [ ] **Conversation Memory**: Multi-turn with `conversation_id`
-- [ ] **Alpic Skybridge**: ChatGPT App integration
+- [x] **Conversation Memory**: Multi-turn with `conversation_id`
+- [x] **Alpic Skybridge**: ChatGPT App integration (See [Guide](alpic_skybridge_guide.md))
+- [ ] **Deploy**: Ship to production
 - [ ] **More Data Sources**: service-public.fr, caf.fr, impots.gouv.fr
 - [ ] **Auto-play TTS** on response (optional setting)
 
