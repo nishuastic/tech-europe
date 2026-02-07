@@ -18,6 +18,14 @@ class Settings(BaseSettings):
     # OpenAI (optional fallback)
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
     
+    # Twilio (for call bridge)
+    twilio_account_sid: str = os.getenv("TWILIO_ACCOUNT_SID", "")
+    twilio_auth_token: str = os.getenv("TWILIO_AUTH_TOKEN", "")
+    twilio_phone_number: str = os.getenv("TWILIO_PHONE_NUMBER", "")
+    
+    # Backend public URL (for Twilio webhooks)
+    backend_public_url: str = os.getenv("BACKEND_PUBLIC_URL", "")
+    
     class Config:
         env_file = ".env"
         extra = "ignore"

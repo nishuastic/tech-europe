@@ -159,6 +159,82 @@ Copy the HTTPS URL (e.g., `https://a1b2-c3d4.ngrok-free.app`).
           }
         }
       }
+    },
+    "/api/v1/call/initiate": {
+      "post": {
+        "description": "Call a French hotline (CAF, Prefecture, etc.) and speak the user's message in French.",
+        "operationId": "initiate_call",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "description": "The user's message in English to be spoken to the hotline."
+                  },
+                  "target": {
+                    "type": "string",
+                    "enum": ["caf", "prefecture", "impots"],
+                    "description": "The hotline to call."
+                  }
+                },
+                "required": ["message", "target"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Call initiated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "call_id": { "type": "string" },
+                    "status": { "type": "string" },
+                    "french_message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/call/status/{call_id}": {
+      "get": {
+        "description": "Check the status of an ongoing call and get the translated response.",
+        "operationId": "check_call_status",
+        "parameters": [
+          {
+            "name": "call_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Call status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "french_response": { "type": "string" },
+                    "english_response": { "type": "string" },
+                    "error": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

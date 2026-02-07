@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1 import agent
+from app.api.v1 import call_bridge
 
 app = FastAPI(
     title="Life Admin Copilot API",
@@ -20,6 +21,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(agent.router, prefix="/api/v1/agent", tags=["Agent"])
+app.include_router(call_bridge.router, prefix="/api/v1", tags=["Call Bridge"])
 
 
 @app.get("/health")
