@@ -15,9 +15,12 @@
 
 - [x] **Conversation Memory**: Multi-turn with `conversation_id`
 - [x] **Alpic Skybridge**: ChatGPT App integration (See [Guide](alpic_skybridge_guide.md))
+- [x] **Auto-play TTS**: Automatic voice response with toggle (uses cached audio)
 - [ ] **Deploy**: Ship to production
 - [ ] **More Data Sources**: service-public.fr, caf.fr, impots.gouv.fr
-- [ ] **Auto-play TTS** on response (optional setting)
+
+> **Note**: Dify Knowledge Base populated with 57 French admin URLs from `firecrawl_urls_2025.csv`
+
 
 ---
 

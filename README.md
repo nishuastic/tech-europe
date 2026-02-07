@@ -14,6 +14,11 @@ uvicorn app.main:app --reload --port 8000
 cd bureaucracy-buddy
 npm install  # or bun install
 npm run dev
+
+# Terminal 3: Alpic Skybridge (Optional)
+cd skybridge-app
+npm install
+npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173)
@@ -26,10 +31,15 @@ Open [http://localhost:5173](http://localhost:5173)
 │     buddy       │     │    Backend      │     │   (RAG + LLM)   │
 │  (Vite/React)   │◀────│   :8000         │◀────│                 │
 └─────────────────┘     └────────┬────────┘     └─────────────────┘
-                                 │
-                        ┌────────▼────────┐
+                                 ▲
+                        ┌────────┴────────┐
                         │    Gradium      │
                         │   (STT + TTS)   │
+                        └────────┬────────┘
+                                 ▲
+                        ┌────────┴────────┐
+                        │    Alpic App    │
+                        │   (Skybridge)   │
                         └─────────────────┘
 ```
 
@@ -45,6 +55,10 @@ tech-europe/
 │   └── .env              # API keys (git-ignored)
 ├── bureaucracy-buddy/     # Frontend (Vite + React + shadcn)
 │   ├── src/
+│   └── package.json
+├── skybridge-app/         # Alpic Skybridge App (ChatGPT Integration)
+│   ├── server/
+│   ├── web/
 │   └── package.json
 └── docs/                  # Setup guides & prompts
 ```

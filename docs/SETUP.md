@@ -91,6 +91,30 @@ http://localhost:8000/api/v1/agent/process-audio
 
 ---
 
+## 5. Alpic Skybridge Setup (ChatGPT App)
+
+1.  **Run Locally**:
+    ```bash
+    cd skybridge-app
+    npm install
+    npm run dev
+    # Runs on http://localhost:3000
+    ```
+
+2.  **Expose Backend**:
+    - Run `ngrok http 8000`
+    - Copy the `https://...` URL
+
+3.  **Deploy to Alpic Cloud**:
+    - Push code to GitHub.
+    - Go to [app.alpic.ai](https://app.alpic.ai).
+    - Import project `skybridge-app`.
+    - **Settings -> Environment Variables**:
+        - `BACKEND_URL`: Your ngrok URL (e.g., `https://xxxx.ngrok-free.app`)
+    - Deploy!
+
+---
+
 ## Troubleshooting
 
 | Issue | Solution |
