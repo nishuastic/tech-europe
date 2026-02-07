@@ -20,8 +20,12 @@ const server = new McpServer(
   },
   async ({ message }) => {
     try {
-      // Call the local FastAPI backend
-      const response = await fetch("http://localhost:8000/api/v1/agent/chat", {
+      // usage: BACKEND_URL=https://your-ngrok.app
+      const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8000";
+      console.log(`[AdminHero] Connecting to backend: ${BACKEND_URL}`);
+
+      // Call the backend
+      const response = await fetch(`${BACKEND_URL}/api/v1/agent/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
