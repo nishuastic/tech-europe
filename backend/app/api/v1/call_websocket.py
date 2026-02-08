@@ -189,6 +189,18 @@ async def initiate_interactive_call(
         )
 
 
+@router.post("/api/v1/call/initiate")
+async def initiate_interactive_call_double_path_fix(
+    request: InitiateInteractiveCallRequest,
+) -> InitiateInteractiveCallResponse:
+    """
+    Fix for Dify tool double-path configuration error.
+    Handles /api/v1/call/initiate/api/v1/call/initiate
+    """
+    logger.warning("Handling double-path request from Dify")
+    return await initiate_interactive_call(request)
+
+
 @router.websocket("/ws/{call_id}")
 async def frontend_websocket(websocket: WebSocket, call_id: str):
     """

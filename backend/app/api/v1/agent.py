@@ -71,11 +71,19 @@ async def process_text(request: ChatRequest):
     try:
         logger.info(f"Chat request: {request.message[:50]}...")
 
+        # Look up the Dify conversation ID from our session (if exists)
+        dify_conv_id = None
+        if request.conversation_id:
+            existing_session = get_conversation(request.conversation_id)
+            if existing_session and existing_session.dify_conversation_id:
+                dify_conv_id = existing_session.dify_conversation_id
+                logger.info(f"Found Dify conv_id: {dify_conv_id} for local conv_id: {request.conversation_id}")
+
         # Call Dify for reasoning
         try:
             dify_response = await call_dify_chat(
                 query=request.message,
-                conversation_id=request.conversation_id,
+                conversation_id=dify_conv_id,  # Use Dify's conversation ID, not our local one
             )
             parsed = parse_dify_response(dify_response)
         except Exception as e:
@@ -95,6 +103,12 @@ async def process_text(request: ChatRequest):
             # Use metadata conversation_id from Dify if available, else new
             dify_id = parsed.get("conversation_id")
             session = create_conversation(dify_id=dify_id)
+        else:
+            # Update dify_conversation_id if Dify returned a new one
+            new_dify_id = parsed.get("conversation_id")
+            if new_dify_id and session.dify_conversation_id != new_dify_id:
+                session.dify_conversation_id = new_dify_id
+                logger.info(f"Updated session dify_conversation_id to {new_dify_id}")
 
         # Add user message
         session.add_message("user", request.message)
@@ -176,12 +190,20 @@ async def process_audio(
                 status_code=500, detail=f"Transcription failed: {str(e)}"
             )
 
+        # Look up the Dify conversation ID from our session (if exists)
+        dify_conv_id = None
+        if conversation_id:
+            existing_session = get_conversation(conversation_id)
+            if existing_session and existing_session.dify_conversation_id:
+                dify_conv_id = existing_session.dify_conversation_id
+                logger.info(f"Found Dify conv_id: {dify_conv_id} for local conv_id: {conversation_id}")
+
         # Step 2: Call Dify for reasoning
         try:
             logger.info("Calling Dify API...")
             dify_response = await call_dify_chat(
                 query=transcript,
-                conversation_id=conversation_id,
+                conversation_id=dify_conv_id,  # Use Dify's conversation ID, not our local one
             )
             logger.info("Dify response received")
             parsed = parse_dify_response(dify_response)
@@ -205,6 +227,12 @@ async def process_audio(
             # Create new session if ID not provided or not found
             dify_id = parsed.get("conversation_id")
             session = create_conversation(dify_id=dify_id)
+        else:
+            # Update dify_conversation_id if Dify returned a new one
+            new_dify_id = parsed.get("conversation_id")
+            if new_dify_id and session.dify_conversation_id != new_dify_id:
+                session.dify_conversation_id = new_dify_id
+                logger.info(f"Updated session dify_conversation_id to {new_dify_id}")
 
         # Add user message (transcript)
         session.add_message("user", transcript)

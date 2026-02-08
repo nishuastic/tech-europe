@@ -203,7 +203,7 @@ async def translate_text(
 
     Args:
         text: Text to translate
-        source_lang: Source language code (en, fr)
+        source_lang: Source language code (en, fr, auto)
         target_lang: Target language code (en, fr)
 
     Returns:
@@ -220,13 +220,20 @@ async def translate_text(
     target = lang_names.get(target_lang, target_lang)
 
     if source_lang == "auto":
-        system_prompt = f"You are a translator. Translate the following text to {target}. If the text is already in {target}, return it exactly as is. Only output the translation, nothing else."
+        # More explicit prompt to avoid translating target language to another language
+        system_prompt = f"""You are a translator. Your task:
+1. First, detect the language of the input text.
+2. If the text is already in {target}, return it EXACTLY as provided with NO changes.
+3. If the text is in a different language, translate it to {target}.
+
+CRITICAL: If the input is already in {target}, do NOT translate it to any other language. Return it unchanged.
+Only output the final text, nothing else."""
     else:
         source = lang_names.get(source_lang, source_lang)
         system_prompt = f"You are a translator. Translate the following text from {source} to {target}. Only output the translation, nothing else."
 
     response = await client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4o-mini",  # Better at following instructions than gpt-3.5-turbo
         messages=[
             {
                 "role": "system",
@@ -234,7 +241,7 @@ async def translate_text(
             },
             {"role": "user", "content": text},
         ],
-        temperature=0.3,
+        temperature=0.1,  # Lower temperature for more deterministic output
         max_tokens=1000,
     )
 

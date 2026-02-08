@@ -73,11 +73,13 @@ export function useCallSession(backendUrl: string = DEFAULT_BACKEND_URL) {
             return;
         }
 
-        const ws = new WebSocket(`${WS_BASE}/${callId}`);
+        const wsUrl = `${WS_BASE}/${callId}`;
+        console.log("[Call] Connecting to WebSocket:", wsUrl);
+        const ws = new WebSocket(wsUrl);
         wsRef.current = ws;
 
         ws.onopen = () => {
-            console.log("[Call] WebSocket connected");
+            console.log("[Call] WebSocket connected successfully to:", wsUrl);
             reconnectAttempts.current = 0;
         };
 
@@ -217,13 +219,17 @@ export function useCallSession(backendUrl: string = DEFAULT_BACKEND_URL) {
 
         ws.onerror = (error) => {
             console.error("[Call] WebSocket error:", error);
+            setState((prev) => ({
+                ...prev,
+                error: "WebSocket connection failed. Check browser console for details.",
+            }));
         };
 
-        ws.onclose = () => {
-            console.log("[Call] WebSocket closed");
+        ws.onclose = (event) => {
+            console.log("[Call] WebSocket closed. Code:", event.code, "Reason:", event.reason);
             wsRef.current = null;
         };
-    }, []);
+    }, [WS_BASE]);
 
     /**
      * Start a new call session

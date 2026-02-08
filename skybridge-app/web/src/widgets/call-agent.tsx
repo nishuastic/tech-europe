@@ -41,12 +41,15 @@ function CallAgentWidget() {
     useEffect(() => {
         if (output && !output.isError && output.structuredContent) {
             const data = output.structuredContent as any;
+            console.log("[CallAgentWidget] Output received:", data);
+            console.log("[CallAgentWidget] Backend URL:", backendUrl);
             if (data.call_id && !callId && !hasJoined.current) {
                 hasJoined.current = true;
+                console.log("[CallAgentWidget] Joining call:", data.call_id, "target:", data.target);
                 joinCall(data.call_id, data.target || "caf");
             }
         }
-    }, [output, callId, joinCall]);
+    }, [output, callId, joinCall, backendUrl]);
 
     // Auto-scroll transcript
     useEffect(() => {
@@ -68,7 +71,8 @@ function CallAgentWidget() {
     // Debug output
     useEffect(() => {
         console.log("CallAgentWidget output:", output);
-    }, [output]);
+        console.log("CallAgentWidget state - phase:", phase, "callId:", callId, "transcript:", transcript.length);
+    }, [output, phase, callId, transcript]);
 
     if (!output) return <div style={{ padding: "20px", color: "#6b7280" }}>Initializing call interface...</div>;
 

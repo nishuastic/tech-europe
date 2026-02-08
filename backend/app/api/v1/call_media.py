@@ -429,9 +429,12 @@ async def process_stt(
 
                             # Now send the actual user question
                             user_msg = session.user_question
+                            logger.info(f"[{session.call_id}] Original user message: {user_msg[:80]}...")
 
-                            # Conciseness prompt is handled in get_agent_response, but here we just translate/speak
+                            # Translate to French (handles auto-detect - keeps French if already French)
                             french_req = await translate_to_french(user_msg)
+                            logger.info(f"[{session.call_id}] Translated to French: {french_req[:80]}...")
+                            
                             session.add_transcript("user", french_req, user_msg)
                             await speak_to_caf(session, french_req)
 
