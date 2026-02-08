@@ -65,7 +65,7 @@ const server = new McpServer(
   },
   async ({ target, message }) => {
     try {
-      const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8000";
+      const BACKEND_URL = process.env.BACKEND_API_URL || process.env.BACKEND_URL || "http://localhost:8000";
 
       // Start the call session on the backend
       const response = await fetch(`${BACKEND_URL}/api/v1/call/initiate`, {
@@ -82,7 +82,7 @@ const server = new McpServer(
       // data: { status, message, call_action: { call_id, target, status } }
 
       return {
-        structuredContent: data.call_action,
+        structuredContent: { ...data.call_action, backend_url: BACKEND_URL },
         content: [{ type: "text", text: data.message }],
         isError: false,
       };

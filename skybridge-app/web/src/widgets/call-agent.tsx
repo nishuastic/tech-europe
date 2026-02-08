@@ -14,6 +14,11 @@ import {
 
 function CallAgentWidget() {
     const { output } = useToolInfo<"call-french-admin">();
+
+    // safe cast to access potential backend_url
+    const outputData = output?.structuredContent as any;
+    const backendUrl = outputData?.backend_url || "http://localhost:8000";
+
     const {
         callId,
         phase,
@@ -26,7 +31,7 @@ function CallAgentWidget() {
         joinCall,
         sendResponse,
         hangup,
-    } = useCallSession();
+    } = useCallSession(backendUrl);
 
     const [userInput, setUserInput] = useState("");
     const transcriptRef = useRef<HTMLDivElement>(null);
@@ -59,6 +64,11 @@ function CallAgentWidget() {
             setUserInput("");
         }
     };
+
+    // Debug output
+    useEffect(() => {
+        console.log("CallAgentWidget output:", output);
+    }, [output]);
 
     if (!output) return <div style={{ padding: "20px", color: "#6b7280" }}>Initializing call interface...</div>;
 

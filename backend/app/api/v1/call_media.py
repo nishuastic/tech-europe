@@ -44,7 +44,7 @@ async def translate_to_english(french_text: str) -> str:
 async def translate_to_french(english_text: str) -> str:
     """Translate English to French using Dify/OpenAI"""
     try:
-        result = await translate_text(english_text, source_lang="en", target_lang="fr")
+        result = await translate_text(english_text, source_lang="auto", target_lang="fr")
         return result
     except Exception as e:
         logger.error(f"Translation error: {e}")

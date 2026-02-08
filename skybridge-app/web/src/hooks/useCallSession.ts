@@ -41,14 +41,15 @@ export interface CallSessionState {
     agentSuggestion: string | null;
 }
 
-const BACKEND_URL = "http://localhost:8000";
-const API_BASE = `${BACKEND_URL}/api/v1/call`;
-const WS_BASE = BACKEND_URL.replace(/^http/, "ws") + "/api/v1/call/ws";
+const DEFAULT_BACKEND_URL = "http://localhost:8000";
 
 /**
  * Hook for managing an interactive call session
  */
-export function useCallSession() {
+export function useCallSession(backendUrl: string = DEFAULT_BACKEND_URL) {
+    const API_BASE = `${backendUrl}/api/v1/call`;
+    const WS_BASE = backendUrl.replace(/^http/, "ws") + "/api/v1/call/ws";
+
     const [state, setState] = useState<CallSessionState>({
         callId: null,
         phase: "gathering_info",

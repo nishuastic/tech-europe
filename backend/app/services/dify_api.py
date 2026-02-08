@@ -217,15 +217,20 @@ async def translate_text(
     client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
 
     lang_names = {"en": "English", "fr": "French", "de": "German", "es": "Spanish"}
-    source = lang_names.get(source_lang, source_lang)
     target = lang_names.get(target_lang, target_lang)
+
+    if source_lang == "auto":
+        system_prompt = f"You are a translator. Translate the following text to {target}. If the text is already in {target}, return it exactly as is. Only output the translation, nothing else."
+    else:
+        source = lang_names.get(source_lang, source_lang)
+        system_prompt = f"You are a translator. Translate the following text from {source} to {target}. Only output the translation, nothing else."
 
     response = await client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {
                 "role": "system",
-                "content": f"You are a translator. Translate the following text from {source} to {target}. Only output the translation, nothing else.",
+                "content": system_prompt,
             },
             {"role": "user", "content": text},
         ],
