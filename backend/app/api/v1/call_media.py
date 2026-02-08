@@ -79,13 +79,25 @@ async def get_agent_response(
 
     # We provide structured inputs to Dify so the System Prompt can handle the logic.
     # The 'query' trigger is the immediate event (CAF spoke).
+    # Pass available session data to help Agent know what it knows
     dify_inputs = {
         "user_question": user_question,
         "transcript": chr(10).join(conversation_context),
         "caf_last_message": caf_said,
+        "call_context": "active_call",
+        "beneficiary_info": f"Name: {session.user_name or 'Unknown'}, CAF Number: {session.caf_number or 'Unknown'}",
     }
 
-    trigger_query = f"CAF just said: '{caf_said}'. Generate the next response. IMPORTANT: Keep your response very short and concise (max 2 sentences) unless asked for details."
+    trigger_query = f"""CAF just said: '{caf_said}'. Generate the next response to speak to them.
+
+CRITICAL INSTRUCTIONS:
+1. You are acting as the user's assistant in a LIVE call with CAF.
+2. If CAF asks for specific user info (Date of Birth, Name, Address, Application Number) and it is NOT in the 'beneficiary_info' or 'transcript', you MUST:
+   - Use the 'ask_user' tool if available.
+   - OR return a JSON object: {{"action": {{"type": "ask_user", "question": "What is your Date of Birth?"}}}}
+   - DO NOT make up a date or number. DO NOT use placeholders like [DD/MM/YYYY].
+3. If you simply need to acknowledge or answer a general question, just return the text.
+4. Keep interactions concise."""
 
     try:
         logger.info(f"[{session.call_id}] Asking agent for response...")

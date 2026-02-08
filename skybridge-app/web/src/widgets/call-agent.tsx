@@ -47,6 +47,12 @@ function CallAgentWidget() {
                 hasJoined.current = true;
                 console.log("[CallAgentWidget] Joining call:", data.call_id, "target:", data.target);
                 joinCall(data.call_id, data.target || "caf");
+            } else if (data.call_action?.call_id && !callId && !hasJoined.current) {
+                // Handle nested call_action from backend
+                hasJoined.current = true;
+                const action = data.call_action;
+                console.log("[CallAgentWidget] Joining call (from action):", action.call_id, "target:", action.target);
+                joinCall(action.call_id, action.target || "caf");
             }
         }
     }, [output, callId, joinCall, backendUrl]);
@@ -94,7 +100,7 @@ function CallAgentWidget() {
 
     const getStatusText = () => {
         switch (phase) {
-            case "gathering_info": return "Enter your question";
+            case "gathering_info": return "Initializing...";
             case "ready_to_call": return "Ready to call";
             case "dialing": return `Calling ${target.toUpperCase()}...`;
             case "connected": return "Connected";
@@ -306,7 +312,7 @@ function CallAgentWidget() {
 
             {/* Transcript */}
             <div ref={transcriptRef} style={styles.transcript}>
-                {transcript.length === 0 && phase === "dialing" && (
+                {(transcript.length === 0 && (phase === "dialing" || phase === "gathering_info")) && (
                     <div style={styles.emptyState}>
                         <div style={{ position: "relative" }}>
                             <div style={{
@@ -327,8 +333,12 @@ function CallAgentWidget() {
                                 <Phone size={32} />
                             </div>
                         </div>
-                        <p style={{ fontSize: "1rem", fontWeight: 500 }}>Calling {target.toUpperCase()}...</p>
-                        <p style={{ fontSize: "0.875rem" }}>Please wait while we connect you.</p>
+                        <p style={{ fontSize: "1rem", fontWeight: 500 }}>
+                            {phase === "gathering_info" ? "Preparing call..." : `Calling ${target.toUpperCase()}...`}
+                        </p>
+                        <p style={{ fontSize: "0.875rem" }}>
+                            {phase === "gathering_info" ? "Initializing connection..." : "Please wait while we connect you."}
+                        </p>
                     </div>
                 )}
 

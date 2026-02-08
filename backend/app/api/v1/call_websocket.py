@@ -189,7 +189,7 @@ async def initiate_interactive_call(
         )
 
 
-@router.post("/api/v1/call/initiate")
+@router.post("/initiate/api/v1/call/initiate")
 async def initiate_interactive_call_double_path_fix(
     request: InitiateInteractiveCallRequest,
 ) -> InitiateInteractiveCallResponse:
