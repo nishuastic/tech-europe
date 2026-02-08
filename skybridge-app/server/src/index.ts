@@ -22,6 +22,9 @@ if (env !== "production") {
 }
 
 if (env === "production") {
+  if (!process.env.ALPIC_APP_URL) {
+    process.env.ALPIC_APP_URL = "https://tech-europe-3d371da2.alpic.live";
+  }
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
 
