@@ -3,9 +3,9 @@
 ## Setup
 ```bash
 cd backend
-python -m venv .venv
+# IMPORTANT: Always use `uv` for dependency management
+uv sync
 source .venv/bin/activate
-pip install -r requirements.txt
 cp .env.example .env  # Fill in your API keys
 uvicorn app.main:app --reload
 ```

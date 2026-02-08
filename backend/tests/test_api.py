@@ -1,36 +1,39 @@
 """
 Tests for Call Bridge API
 """
+
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
-from app.services.call_bridge import call_manager, CallStatus, CallSession
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 client = TestClient(app)
 
+
+@pytest.mark.asyncio
 @pytest.mark.asyncio
 async def test_initiate_call_flow():
-    # Mock dependencies
-    with patch("app.services.call_bridge.call_manager.initiate_call", new_callable=AsyncMock) as mock_initiate:
-        mock_session = CallSession(
-            call_id="test-123",
-            user_message="Hello",
-            target="caf",
-            target_number="+33...",
-            status=CallStatus.PENDING
+    # Mock TwilioService
+    with patch("app.api.v1.call_websocket.TwilioService") as MockTwilioService:
+        # Configure mock instance
+        mock_instance = MockTwilioService.return_value
+        mock_instance.initiate_media_stream_call.return_value = "CA12345"
+
+        # Test the endpoint
+        response = client.post(
+            "/api/v1/call/initiate", json={"message": "Hello", "target": "caf"}
         )
-        mock_initiate.return_value = mock_session
-        
-        response = client.post("/api/v1/call/initiate", json={
-            "message": "Hello",
-            "target": "caf"
-        })
-        
+
         assert response.status_code == 200
         data = response.json()
-        assert data["call_id"] == "test-123"
-        assert data["status"] == "pending"
+
+        # Check response structure
+        assert data["status"] == "calling"
+        assert "I'm now calling CAF" in data["message"]
+        assert "call_action" in data
+        assert data["call_action"]["target"] == "caf"
+        assert "call_id" in data["call_action"]
+
 
 def test_health_check():
     response = client.get("/health")

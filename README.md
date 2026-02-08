@@ -7,6 +7,8 @@
 ```bash
 # Terminal 1: Backend
 cd backend
+# IMPORTANT: Always use `uv` for backend dependencies!
+uv sync
 source .venv/bin/activate
 uvicorn app.main:app --reload --port 8000
 

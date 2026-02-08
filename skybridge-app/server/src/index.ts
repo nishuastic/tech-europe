@@ -37,6 +37,6 @@ app.listen(3000, (error) => {
 });
 
 process.on("SIGINT", async () => {
-  console.log("Server shutdown complete");
+
   process.exit(0);
 });
