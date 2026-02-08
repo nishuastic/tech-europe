@@ -62,6 +62,20 @@ const server = new McpServer(
       target: z.enum(["caf", "prefecture", "impots"]).describe("The agency to call."),
       message: z.string().describe("The user's initial message or question to the agency."),
     },
+    _meta: {
+      ui: {
+        csp: {
+          connectDomains: [
+            "http://localhost:8000",
+            "ws://localhost:8000",
+            "https://6422-86-245-115-243.ngrok-free.app",
+            "wss://6422-86-245-115-243.ngrok-free.app",
+            "https://tech-europe-3d371da2.alpic.live",
+            "wss://tech-europe-3d371da2.alpic.live",
+          ],
+        },
+      },
+    },
   },
   async ({ target, message }) => {
     try {

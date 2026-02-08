@@ -31,6 +31,7 @@ function CallAgentWidget() {
         joinCall,
         sendResponse,
         hangup,
+        isConnected,
     } = useCallSession(backendUrl);
 
     const [userInput, setUserInput] = useState("");
@@ -425,14 +426,32 @@ function CallAgentWidget() {
                 </div>
             )}
 
+            {/* Debug Info (Auto-hidden unless error or manual toggle) */}
+            <div style={{
+                padding: "0.5rem 1.5rem",
+                fontSize: "0.75rem",
+                color: "#4b5563",
+                borderTop: "1px solid #1f2937",
+                display: "flex",
+                justifyContent: "space-between"
+            }}>
+                <span>Status: {isConnected ? "🟢 Connected" : "🔴 Disconnected"}</span>
+                <span>ID: {callId ? callId.slice(0, 8) : "None"}</span>
+                <span>Phase: {phase}</span>
+                <span>WaitUser: {waitingForUser ? "Yes" : "No"}</span>
+            </div>
+
             {/* Input Area */}
-            {waitingForUser && (
-                <div style={styles.inputArea}>
+            {(waitingForUser || true) && (
+                <div style={{
+                    ...styles.inputArea,
+                    display: waitingForUser ? "flex" : "none" // Only hide via display, allow rendering to check props
+                }}>
                     <input
                         style={styles.input}
                         value={userInput}
                         onChange={(e) => setUserInput(e.target.value)}
-                        placeholder="Type your response..."
+                        placeholder={phase === "waiting_user" ? "Type your response..." : "Waiting for your turn..."}
                         onKeyDown={(e) => {
                             if (e.key === "Enter" && !e.shiftKey) {
                                 e.preventDefault();
