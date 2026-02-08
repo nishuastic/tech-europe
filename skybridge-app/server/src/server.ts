@@ -51,6 +51,48 @@ const server = new McpServer(
       };
     }
   },
+).registerWidget(
+  "call-french-admin",
+  {
+    description: "Call French Administration (CAF, Prefecture, etc.)",
+  },
+  {
+    description: "Use this to call a French administration hotline on behalf of the user.",
+    inputSchema: {
+      target: z.enum(["caf", "prefecture", "impots"]).describe("The agency to call."),
+      message: z.string().describe("The user's initial message or question to the agency."),
+    },
+  },
+  async ({ target, message }) => {
+    try {
+      const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8000";
+
+      // Start the call session on the backend
+      const response = await fetch(`${BACKEND_URL}/api/v1/call/initiate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target, message }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to start call: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      // data: { status, message, call_action: { call_id, target, status } }
+
+      return {
+        structuredContent: data.call_action,
+        content: [{ type: "text", text: data.message }],
+        isError: false,
+      };
+    } catch (error) {
+      return {
+        content: [{ type: "text", text: `Error starting call: ${error}` }],
+        isError: true,
+      };
+    }
+  },
 );
 
 export default server;

@@ -10,6 +10,7 @@ import asyncio
 import base64
 import json
 import logging
+import time
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import gradium
@@ -310,6 +311,7 @@ async def process_stt(
         current_text = ""
         last_translated_text = ""
         last_translation = ""
+        last_translation_time = 0
 
         # New: Track consecutive silence for VAD
         vad_silence_counter = 0
@@ -335,45 +337,52 @@ async def process_stt(
                 else:
                     current_text = french_chunk
 
-                # Throttle translation: Only translate if we have enough new content (>15 chars)
-                should_translate = (len(current_text) - len(last_translated_text)) > 15
-
-                english_text = last_translation
-                if should_translate:
-                    # Translate the FULL accumulated French text
+                # --- INTERMEDIATE TRANSLATION STRATEGY ---
+                # User request: "Every 1 second then and 20 chars"
+                
+                new_content_len = len(current_text) - len(last_translated_text)
+                now = time.time()
+                time_since_last = now - last_translation_time
+                
+                # Check soft pause (VAD > 0.6)
+                # We can't easily check VAD here because we are in the "text" message block, not "step" (VAD) block.
+                # However, we can use the time-based trigger as the primary driver for intermediate results.
+                
+                # Trigger if:
+                # 1. We have enough new content (> 20 chars)
+                # 2. AND enough time has passed (> 1.0s)
+                if new_content_len > 20 and time_since_last > 1.0:
                     english_text = await translate_to_english(current_text)
                     last_translation = english_text
                     last_translated_text = current_text
+                    last_translation_time = now
 
-                # Send accumulated French + latest English to frontend
-                await notify_frontend(
-                    session,
-                    "caf_said",
-                    {
-                        "french": current_text,
-                        "english": english_text,
-                        "is_final": False,
-                    },
-                )
+                    # Send accumulated French + latest English to frontend
+                    await notify_frontend(
+                        session,
+                        "caf_said",
+                        {
+                            "french": current_text,
+                            "english": english_text,
+                            "is_final": False,
+                        },
+                    )
 
             elif msg_type == "step":
-                # VAD: Check if CAF stopped talking
+                # VAD: Check if CAF paused or stopped talking
                 vad = msg.get("vad", [])
                 if len(vad) >= 3:
                     inactivity_prob = vad[2].get("inactivity_prob", 0)
 
+                    # --- HARD PAUSE (Finalize) ---
                     # Stricter VAD: Require consecutive silent frames
                     if inactivity_prob > 0.90:
                         vad_silence_counter += 1
                     else:
                         vad_silence_counter = 0
 
-                    # If silence detected and we have collected some text
                     if vad_silence_counter >= SILENCE_THRESHOLD and current_text:
-                        # CAF finished speaking
-                        # logger.info(f"[{session.call_id}] Final French: '{current_text}'") # Reduced log
-
-                        # Translate FULL sentence to English once
+                        # CAF finished speaking (Hard Pause)
                         english_final = await translate_to_english(current_text)
 
                         # Add to transcript

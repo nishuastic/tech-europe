@@ -159,4 +159,7 @@ HOTLINE_NUMBERS = {
 
 def get_hotline_number(target: str) -> str:
     """Get the phone number for a target hotline."""
+    if settings.test_phone_number:
+        return settings.test_phone_number
+        
     return HOTLINE_NUMBERS.get(target.lower(), HOTLINE_NUMBERS["caf"])

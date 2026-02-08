@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     twilio_account_sid: str = os.getenv("TWILIO_ACCOUNT_SID", "")
     twilio_auth_token: str = os.getenv("TWILIO_AUTH_TOKEN", "")
     twilio_phone_number: str = os.getenv("TWILIO_PHONE_NUMBER", "")
+    
+    # Test phone number (overrides all hotlines in dev)
+    test_phone_number: str = os.getenv("TEST_PHONE_NUMBER", "")
 
     # Backend public URL (for Twilio webhooks)
     backend_public_url: str = os.getenv("BACKEND_PUBLIC_URL", "")
