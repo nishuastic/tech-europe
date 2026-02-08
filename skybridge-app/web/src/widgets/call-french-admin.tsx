@@ -12,7 +12,7 @@ import {
     Phone,
 } from "lucide-react";
 
-function CallAgentWidget() {
+function CallFrenchAdminWidget() {
     const { output } = useToolInfo<"call-french-admin">();
 
     // safe cast to access potential backend_url
@@ -478,6 +478,6 @@ function CallAgentWidget() {
     );
 }
 
-export default CallAgentWidget;
+export default CallFrenchAdminWidget;
 
-mountWidget(<CallAgentWidget />);
+mountWidget(<CallFrenchAdminWidget />);
